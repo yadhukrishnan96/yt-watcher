@@ -176,3 +176,4 @@ A video is only notified **once**, even across pod restarts, Redis flushes, or r
 - App runs as a non-root user (`uid=1000`) inside the container
 - Consider [Sealed Secrets](https://github.com/bitnami-labs/sealed-secrets) or [External Secrets Operator](https://external-secrets.io/) for GitOps workflows
 - The Telegram token in this repo is a **live credential** — rotate it via @BotFather after testing
+# yt-watcher
