@@ -1,0 +1,24 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: yt-watcher-config
+  namespace: yt-watcher
+data:
+  # Comma-separated YouTube channel IDs to track (no spaces around commas)
+  # Find a channel ID: view-source:https://www.youtube.com/@ChannelName
+  # and search for "externalId"
+  YOUTUBE_CHANNEL_IDS: "UCVHFbw7woebKtfhjMa_crzw,UCXuqSBlHAE6Xw-yeJA0Tunw"
+
+  # Polling interval in seconds.
+  # Change this without rebuilding the image — just update the ConfigMap and
+  # rollout restart the Deployment.
+  POLL_INTERVAL_SECONDS: "900"
+
+  # PostgreSQL connection (non-secret parts)
+  POSTGRES_DB: "ytwatcher"
+  POSTGRES_USER: "postgres"
+  POSTGRES_HOST: "postgres-svc"
+  POSTGRES_PORT: "5432"
+
+  # Redis
+  REDIS_URL: "redis://redis-svc:6379/0"

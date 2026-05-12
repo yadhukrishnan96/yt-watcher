@@ -1,0 +1,22 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: cpuhog
+spec:
+  terminationGracePeriodSeconds: 0
+  containers:
+    - name: cpuhog
+      image: busybox
+      command:
+        - sh
+        - -c
+        - |
+          while true; do
+            for i in $(seq 1 50000); do :; done
+            sleep 0.01
+          done 
+      resources:
+        requests:
+          cpu: "100m"
+        limits:
+          cpu: "200m"

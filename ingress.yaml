@@ -1,0 +1,33 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: yt-watcher-ingress
+  namespace: yt-watcher
+spec:
+  ingressClassName: traefik
+  rules:
+    - host: yt.local
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: yt-watcher-service
+                port:
+                  number: 80
+  # rules:
+  #   - http:
+  #       paths:
+  #         - path: /
+  #           pathType: Prefix
+  #           backend:
+  #             service:
+  #               name: yt-watcher-service
+  #               port:
+  #                 number: 80
+
+
+
+
+

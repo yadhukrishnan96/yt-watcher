@@ -1,0 +1,142 @@
+---
+# ── Deployment ────────────────────────────────────────────────────────────────
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: yt-watcher
+  namespace: yt-watcher
+  labels:
+    app: yt-watcher
+  annotations:
+    # Triggers rollout on ConfigMap change when using Helm or manual deploys:
+    # kubectl rollout restart deployment/yt-watcher -n yt-watcher
+    configmap-hash: "update-this-on-configmap-change"
+spec:
+  # Keep at 1 replica to avoid duplicate RSS polls + duplicate Telegram messages.
+  # Scale horizontally only if you add distributed locking (e.g. Redis SETNX).
+  replicas: 1
+  selector:
+    matchLabels:
+      app: yt-watcher
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 0
+      maxSurge: 1
+  template:
+    metadata:
+      labels:
+        app: yt-watcher
+    spec:
+      # Ensure pod doesn't run as root
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
+
+      containers:
+        - name: yt-watcher
+          image: your-registry/yt-watcher:latest  # Replace with your image
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8000
+
+          env:
+            # ── From ConfigMap (non-sensitive) ──────────────────────────────
+            - name: POLL_INTERVAL_SECONDS
+              valueFrom:
+                configMapKeyRef:
+                  name: yt-watcher-config
+                  key: POLL_INTERVAL_SECONDS
+
+            - name: YOUTUBE_CHANNEL_IDS
+              valueFrom:
+                configMapKeyRef:
+                  name: yt-watcher-config
+                  key: YOUTUBE_CHANNEL_IDS
+
+            - name: REDIS_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: yt-watcher-config
+                  key: REDIS_URL
+
+            # Build DATABASE_URL from parts — keeps host/db in ConfigMap, password in Secret
+            - name: POSTGRES_USER
+              valueFrom:
+                configMapKeyRef:
+                  name: yt-watcher-config
+                  key: POSTGRES_USER
+            - name: POSTGRES_DB
+              valueFrom:
+                configMapKeyRef:
+                  name: yt-watcher-config
+                  key: POSTGRES_DB
+            - name: POSTGRES_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: yt-watcher-config
+                  key: POSTGRES_HOST
+            - name: POSTGRES_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: yt-watcher-config
+                  key: POSTGRES_PORT
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: yt-watcher-secrets
+                  key: postgres-password
+            - name: DATABASE_URL
+              value: "postgresql+asyncpg://$(POSTGRES_USER):$(POSTGRES_PASSWORD)@$(POSTGRES_HOST):$(POSTGRES_PORT)/$(POSTGRES_DB)"
+
+            # ── From Secret (sensitive) ──────────────────────────────────────
+            - name: TELEGRAM_BOT_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: yt-watcher-secrets
+                  key: telegram-bot-token
+
+            - name: TELEGRAM_CHAT_ID
+              valueFrom:
+                secretKeyRef:
+                  name: yt-watcher-secrets
+                  key: telegram-chat-id
+
+          resources:
+            requests:
+              cpu: "50m"
+              memory: "128Mi"
+            limits:
+              cpu: "200m"
+              memory: "256Mi"
+
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: 8000
+            initialDelaySeconds: 15
+            periodSeconds: 20
+            failureThreshold: 3
+
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: 8000
+            initialDelaySeconds: 10
+            periodSeconds: 10
+
+---
+# ── Service ───────────────────────────────────────────────────────────────────
+apiVersion: v1
+kind: Service
+metadata:
+  name: yt-watcher-svc
+  namespace: yt-watcher
+spec:
+  selector:
+    app: yt-watcher
+  ports:
+    - port: 80
+      targetPort: 8000
+  type: ClusterIP

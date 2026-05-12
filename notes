@@ -1,0 +1,51 @@
+curl http://yt.local/oom to initiate oom kill
+
+
+added /readyz endpoint for pgres and redis availability
+
+
+
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Paths you can hit for eg
+    curl http://localhost:8000/healthz
+
+
+GET    /healthz
+GET    /docs
+GET    /redoc
+GET    /openapi.json
+
+GET    /api/v1/status
+GET    /api/v1/videos
+GET    /api/v1/videos?limit=50
+GET    /api/v1/videos?channel_id=<CHANNEL_ID>
+GET    /api/v1/videos?channel_id=<CHANNEL_ID>&limit=<N>
+
+POST   /api/v1/poll
+
+DELETE /api/v1/videos/<VIDEO_ID>
+
+
+
+
+
