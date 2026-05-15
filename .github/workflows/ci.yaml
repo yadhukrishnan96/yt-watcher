@@ -49,6 +49,8 @@ jobs:
   integration-test:
     needs: verify
     runs-on: ubuntu-latest
+    env:
+      YOUTUBE_CHANNEL_IDS: dummy-channel
 
     services:
       postgres:
