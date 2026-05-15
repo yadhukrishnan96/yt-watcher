@@ -1,5 +1,7 @@
 from unittest.mock import AsyncMock
 
+import pytest
+
 from app.poller import (
     _mark_seen_redis,
     REDIS_KEY_PREFIX,
@@ -7,6 +9,7 @@ from app.poller import (
 )
 
 
+@pytest.mark.asyncio
 async def test_mark_seen_redis():
     # Fake Redis client
     redis = AsyncMock()
