@@ -1,6 +1,6 @@
 from datetime import datetime, timezone
 
-import pytest
+import pytest_asyncio
 
 from app.feed import VideoEntry
 from app.poller import _is_seen_db, _mark_seen_db
