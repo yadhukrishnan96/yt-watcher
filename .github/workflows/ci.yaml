@@ -26,23 +26,25 @@ jobs:
       - name: Install dependencies
         run: |
           pip install -r requirements-dev.txt
-
-      - name: Run tests
-        run: pytest --ignore=tests/integration.py
-
-      - name: Output
-        run: echo "Test success"
-
+      
       - name: Lint
         run: |
           ruff check .
           ruff format --check .
-      - name: Build Docker image
-        run: docker build --no-cache -t yt-watcher .
+
+           
+      - name: Run tests
+        run: PYTHONPATH=. pytest --ignore=tests/integration.py
+
+      - name: Output
+        run: echo "Test success"
+
+      
   
 
 
   integration-test:
+    needs: verify
     runs-on: ubuntu-latest
 
     services:
@@ -78,4 +80,16 @@ jobs:
       - name: Run integration tests
         env:
           DATABASE_URL: postgresql+asyncpg://test:test@localhost:5432/ytwatcher_test
-        run: pytest tests/integration.py
+        run: PYTHONPATH=. pytest tests/integration.py
+  
+  docker-image-build:
+    needs: integration-test
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Build Docker image
+        run: docker build --no-cache -t yt-watcher .
+
