@@ -1,4 +1,5 @@
-import pytest
+import pytest_asyncio
+
 from sqlalchemy.ext.asyncio import (
     AsyncSession,
     async_sessionmaker,
@@ -13,7 +14,7 @@ DATABASE_URL = (
 )
 
 
-@pytest.fixture
+@pytest_asyncio.fixture
 async def async_session():
     engine = create_async_engine(DATABASE_URL)
 
