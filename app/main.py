@@ -84,11 +84,7 @@ def trigger_oom():
     return {"status": "allocating memory", "size": len(leak)}
 
 
-@app.get("/oom")
-def trigger_oom():
-    for _ in range(50):
-        leak.append("x" * 2_000_000)
-    return {"status": "allocating memory", "size": len(leak)}
+
 
 
 
