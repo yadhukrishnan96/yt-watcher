@@ -13,6 +13,8 @@ on:
 jobs:
   verify:
     runs-on: ubuntu-latest
+    env:
+      YOUTUBE_CHANNEL_IDS: dummy-channel
 
     steps:
       - name: Checkout repo
