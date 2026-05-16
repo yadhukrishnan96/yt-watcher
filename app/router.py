@@ -1,10 +1,9 @@
 import logging
 from typing import List, Optional
 
-from fastapi import APIRouter, Depends, HTTPException, Request
+from fastapi import APIRouter, HTTPException, Request
 from pydantic import BaseModel
 from sqlalchemy import select, desc
-from sqlalchemy.ext.asyncio import AsyncSession
 
 from .config import settings
 from .models import SeenVideo
