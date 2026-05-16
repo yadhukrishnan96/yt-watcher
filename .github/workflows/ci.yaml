@@ -92,17 +92,26 @@ jobs:
   
 
 
-  docker-image-build:
+  Docker-Buildkit:
     needs: integration-test
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
+      
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v4
 
       - name: Build Docker image
-        run: docker build -t yt-watcher .
-      
+        uses: docker/build-push-action@v7
+        with:
+          context: .
+          push: false
+          tags: yt-watcher:latest
+          load: true
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
       - name: Run stack
         env:
           DATABASE_URL: postgresql+asyncpg://postgres:postgres@postgres:5432/ytwatcher
@@ -111,16 +120,34 @@ jobs:
           TELEGRAM_CHAT_ID: dummy
           YOUTUBE_CHANNEL_IDS: dummy-channel
           
-        run: | 
-          docker compose up -d
-          sleep 5
+        run: docker compose up -d
+      
+
+            
+      - name: Wait for app healthcheck
+        run: |
+          for i in {1..20}; do
+            if curl --fail --silent --show-error http://localhost:8000/healthz; then
+              echo "App is healthy"
+              exit 0
+            fi
+
+            echo "Waiting for app..."
+            sleep 2
+          done
+
+          echo "App failed healthcheck"
+          docker compose logs app
+          exit 1
            
       - name: Check container status
+        if: failure()
         run: docker ps -a
 
       - name: Show container logs
-        run: docker logs yt-watcher-app-1
+        if: failure()
+        run: docker compose logs app 
 
-      - name: Healthcheck
-        run: |
-          curl --fail http://localhost:8000/healthz
+      - name: Cleanup
+        if: always()
+        run: docker compose down -v
