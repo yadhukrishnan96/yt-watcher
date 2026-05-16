@@ -104,6 +104,13 @@ jobs:
         run: docker build --no-cache -t yt-watcher .
       
       - name: Run stack
+        env:
+          DATABASE_URL: postgresql+asyncpg://postgres:postgres@postgres:5432/ytwatcher
+          REDIS_URL: redis://redis:6379
+          TELEGRAM_BOT_TOKEN: dummy
+          TELEGRAM_CHAT_ID: dummy
+          YOUTUBE_CHANNEL_IDS: dummy-channel
+          
         run: | 
           docker compose up -d
           sleep 5
