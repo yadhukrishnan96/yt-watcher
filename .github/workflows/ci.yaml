@@ -24,6 +24,7 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: "3.12"
+          cache: "pip"
 
       - name: Install dependencies
         run: |
@@ -31,8 +32,8 @@ jobs:
       
       - name: Lint
         run: |
-          ruff check . --fix
-          ruff format .
+          ruff check . 
+          ruff format --check .
           git diff
 
            
@@ -77,6 +78,7 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: "3.12"
+          cache: "pip"
 
       - name: Install dependencies
         run: |
@@ -87,6 +89,9 @@ jobs:
           DATABASE_URL: postgresql+asyncpg://test:test@localhost:5432/ytwatcher_test
         run: PYTHONPATH=. pytest tests/integration.py
   
+  
+
+
   docker-image-build:
     needs: integration-test
     runs-on: ubuntu-latest
@@ -98,3 +103,12 @@ jobs:
       - name: Build Docker image
         run: docker build --no-cache -t yt-watcher .
 
+      - name: Run container
+        run: |
+           docker run -d --name yt-test -p 8000:8000 yt-watcher
+           sleep 5
+           docker logs yt-test
+
+      - name: Healthcheck
+        run: |
+          curl --fail http://localhost:8000/healthz
