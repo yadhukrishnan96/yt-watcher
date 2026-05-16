@@ -42,7 +42,8 @@ class Settings:
     poll_interval_seconds: int = _parse_poll_interval()
     youtube_channel_ids: List[str] = _parse_channel_ids()
     database_url: str = os.getenv(
-        "DATABASE_URL", "postgresql+asyncpg://postgres:postgres@localhost:5432/ytwatcher"
+        "DATABASE_URL",
+        "postgresql+asyncpg://postgres:postgres@localhost:5432/ytwatcher",
     )
     redis_url: str = os.getenv("REDIS_URL", "redis://localhost:6379/0")
     telegram_bot_token: str = os.getenv("TELEGRAM_BOT_TOKEN", "")

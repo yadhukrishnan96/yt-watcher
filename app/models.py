@@ -17,4 +17,8 @@ class SeenVideo(Base):
     title = Column(Text, nullable=False)
     url = Column(Text, nullable=False)
     published_at = Column(DateTime(timezone=True), nullable=True)
-    notified_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), nullable=False)
+    notified_at = Column(
+        DateTime(timezone=True),
+        default=lambda: datetime.now(timezone.utc),
+        nullable=False,
+    )

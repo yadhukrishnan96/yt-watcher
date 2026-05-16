@@ -9,9 +9,7 @@ from sqlalchemy.ext.asyncio import (
 from app.models import Base
 
 
-DATABASE_URL = (
-    "postgresql+asyncpg://test:test@localhost:5432/ytwatcher_test"
-)
+DATABASE_URL = "postgresql+asyncpg://test:test@localhost:5432/ytwatcher_test"
 
 
 @pytest_asyncio.fixture

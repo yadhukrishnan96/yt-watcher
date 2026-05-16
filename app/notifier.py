@@ -24,8 +24,6 @@ def _format_message(video: VideoEntry) -> str:
     )
 
 
-
-
 async def send_telegram_notification(video: VideoEntry) -> bool:
     if not settings.telegram_bot_token or not settings.telegram_chat_id:
         logger.warning("Telegram credentials not configured — skipping notification")
