@@ -102,12 +102,12 @@ jobs:
 
       - name: Build Docker image
         run: docker build --no-cache -t yt-watcher .
-
-      - name: Run container
-        run: |
-           docker run -d --name yt-test -p 8000:8000 -e YOUTUBE_CHANNEL_IDS=dummy-channel yt-watcher
-           sleep 5
-           docker logs yt-test
+      
+      - name: Run stack
+        run: | 
+          docker compose up -d
+          sleep 5
+           
       - name: Check container status
         run: docker ps -a
 
