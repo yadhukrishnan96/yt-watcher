@@ -105,7 +105,7 @@ jobs:
 
       - name: Run container
         run: |
-           docker run -d --name yt-test -p 8000:8000 yt-watcher
+           docker run -d --name yt-test -p 8000:8000 -e YOUTUBE_CHANNEL_IDS=dummy-channel yt-watcher
            sleep 5
            docker logs yt-test
 
