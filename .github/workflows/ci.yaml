@@ -101,7 +101,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Build Docker image
-        run: docker build --no-cache -t yt-watcher .
+        run: docker build -t yt-watcher .
       
       - name: Run stack
         env:
