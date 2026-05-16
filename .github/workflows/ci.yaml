@@ -112,7 +112,7 @@ jobs:
         run: docker ps -a
 
       - name: Show container logs
-        run: docker logs yt-test
+        run: docker logs yt-watcher
 
       - name: Healthcheck
         run: |
