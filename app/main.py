@@ -26,7 +26,9 @@ logger = logging.getLogger(__name__)
 async def lifespan(app: FastAPI):
     logger.info("=== YouTube RSS Watcher starting up ===")
     logger.info(f"Effective poll interval : {settings.poll_interval_seconds}s")
-    logger.info(f"Tracking {len(settings.youtube_channel_ids)} channel(s): {settings.youtube_channel_ids}")
+    logger.info(
+        f"Tracking {len(settings.youtube_channel_ids)} channel(s): {settings.youtube_channel_ids}"
+    )
 
     # ── Postgres ─────────────────────────────────────────────────────────────
     app.state.engine = create_async_engine(settings.database_url, echo=False)
@@ -46,7 +48,9 @@ async def lifespan(app: FastAPI):
 
     # ── Background poller ────────────────────────────────────────────────────
     poller_task = asyncio.create_task(start_poller(app))
-    logger.info(f"Background poller started — first run in {settings.poll_interval_seconds}s")
+    logger.info(
+        f"Background poller started — first run in {settings.poll_interval_seconds}s"
+    )
 
     yield
 
@@ -77,28 +81,18 @@ app.include_router(router)
 
 leak = []
 
-@app.get("/oom")
-def trigger_oom():
-    for _ in range(50):
-        leak.append("x" * 2_000_000)
-    return {"status": "allocating memory", "size": len(leak)}
-
 
 @app.get("/oom")
 def trigger_oom():
     for _ in range(50):
         leak.append("x" * 2_000_000)
     return {"status": "allocating memory", "size": len(leak)}
-
-
-
 
 
 @app.get("/healthz", tags=["ops"])
 async def health():
     """Kubernetes liveness / readiness probe endpoint."""
     return {"status": "ok"}
-
 
 
 @app.get("/readyz", tags=["ops"])
@@ -116,5 +110,3 @@ async def ready(request: Request):
 
     except Exception as e:
         raise HTTPException(status_code=503, detail=str(e))
-
-

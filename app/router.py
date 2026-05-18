@@ -1,10 +1,9 @@
 import logging
 from typing import List, Optional
 
-from fastapi import APIRouter, Depends, HTTPException, Request
+from fastapi import APIRouter, HTTPException, Request
 from pydantic import BaseModel
 from sqlalchemy import select, desc
-from sqlalchemy.ext.asyncio import AsyncSession
 
 from .config import settings
 from .models import SeenVideo
@@ -15,6 +14,7 @@ router = APIRouter(prefix="/api/v1", tags=["watcher"])
 
 
 # ── Pydantic schemas ────────────────────────────────────────────────────────
+
 
 class VideoOut(BaseModel):
     video_id: str
@@ -37,11 +37,13 @@ class StatusOut(BaseModel):
 
 # ── Helpers ─────────────────────────────────────────────────────────────────
 
+
 def get_session(request: Request):
     return request.app.state.async_session()
 
 
 # ── Endpoints ────────────────────────────────────────────────────────────────
+
 
 @router.get("/status", response_model=StatusOut)
 async def status():
@@ -49,7 +51,9 @@ async def status():
     return StatusOut(
         poll_interval_seconds=settings.poll_interval_seconds,
         tracked_channels=settings.youtube_channel_ids,
-        telegram_configured=bool(settings.telegram_bot_token and settings.telegram_chat_id),
+        telegram_configured=bool(
+            settings.telegram_bot_token and settings.telegram_chat_id
+        ),
     )
 
 
@@ -88,6 +92,7 @@ async def trigger_poll(request: Request):
     Useful for testing or forcing a check without waiting for the interval.
     """
     import asyncio
+
     asyncio.create_task(poll_once(request.app))
     return {"message": "Poll cycle triggered asynchronously"}
 
@@ -106,7 +111,9 @@ async def forget_video(video_id: str, request: Request):
         )
         row = result.scalar_one_or_none()
         if not row:
-            raise HTTPException(status_code=404, detail=f"Video {video_id!r} not in seen list")
+            raise HTTPException(
+                status_code=404, detail=f"Video {video_id!r} not in seen list"
+            )
         await session.delete(row)
         await session.commit()
 

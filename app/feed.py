@@ -26,17 +26,20 @@ def _parse_dt(raw: Optional[str]) -> Optional[datetime]:
         return None
     for fmt in ("%Y-%m-%dT%H:%M:%S%z", "%Y-%m-%dT%H:%M:%SZ"):
         try:
-            return datetime.strptime(raw[:25], fmt[:len(raw[:25])])
+            return datetime.strptime(raw[:25], fmt[: len(raw[:25])])
         except ValueError:
             continue
     try:
         from dateutil import parser as dtparser
+
         return dtparser.parse(raw)
     except Exception:
         return None
 
 
-async def fetch_channel_videos(channel_id: str, client: httpx.AsyncClient) -> List[VideoEntry]:
+async def fetch_channel_videos(
+    channel_id: str, client: httpx.AsyncClient
+) -> List[VideoEntry]:
     url = f"{settings.youtube_rss_base}{channel_id}"
     try:
         resp = await client.get(url, timeout=15.0)
@@ -78,5 +81,7 @@ async def fetch_channel_videos(channel_id: str, client: httpx.AsyncClient) -> Li
             )
         )
 
-    logger.info(f"Fetched {len(videos)} video(s) from channel '{channel_name}' ({channel_id})")
+    logger.info(
+        f"Fetched {len(videos)} video(s) from channel '{channel_name}' ({channel_id})"
+    )
     return videos

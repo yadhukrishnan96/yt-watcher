@@ -1,0 +1,153 @@
+name: CI
+
+
+# on:
+#   pull_request:
+#     branches:
+#       - main
+#   push: 
+#     branches:
+#       - main
+#       - feature/**
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    env:
+      YOUTUBE_CHANNEL_IDS: dummy-channel
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+
+      - name: Install dependencies
+        run: |
+          pip install -r requirements-dev.txt
+      
+      - name: Lint
+        run: |
+          ruff check . 
+          ruff format --check .
+          git diff
+
+           
+      - name: Run tests
+        run: PYTHONPATH=. pytest --ignore=tests/integration.py
+
+      - name: Output
+        run: echo "Test success"
+
+      
+  
+
+
+  integration-test:
+    needs: verify
+    runs-on: ubuntu-latest
+    env:
+      YOUTUBE_CHANNEL_IDS: dummy-channel
+
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: test
+          POSTGRES_PASSWORD: test
+          POSTGRES_DB: ytwatcher_test
+        ports:
+          - 5432:5432
+
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+
+      - name: Install dependencies
+        run: |
+          pip install -r requirements-dev.txt
+
+      - name: Run integration tests
+        env:
+          DATABASE_URL: postgresql+asyncpg://test:test@localhost:5432/ytwatcher_test
+        run: PYTHONPATH=. pytest tests/integration.py
+  
+  
+
+
+  Docker-Buildkit:
+    needs: integration-test
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+      
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v4
+
+      - name: Build Docker image
+        uses: docker/build-push-action@v7
+        with:
+          context: .
+          push: false
+          tags: yt-watcher:latest
+          load: true
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+      - name: Run stack
+        env:
+          DATABASE_URL: postgresql+asyncpg://postgres:postgres@postgres:5432/ytwatcher
+          REDIS_URL: redis://redis:6379
+          TELEGRAM_BOT_TOKEN: dummy
+          TELEGRAM_CHAT_ID: dummy
+          YOUTUBE_CHANNEL_IDS: dummy-channel
+          
+        run: docker compose up -d
+      
+
+            
+      - name: Wait for app healthcheck
+        run: |
+          for i in {1..20}; do
+            if curl --fail --silent --show-error http://localhost:8000/healthz; then
+              echo "App is healthy"
+              exit 0
+            fi
+
+            echo "Waiting for app..."
+            sleep 2
+          done
+
+          echo "App failed healthcheck"
+          docker compose logs app
+          exit 1
+           
+      - name: Check container status
+        if: failure()
+        run: docker ps -a
+
+      - name: Show container logs
+        if: failure()
+        run: docker compose logs app 
+
+      - name: Cleanup
+        if: always()
+        run: docker compose down -v

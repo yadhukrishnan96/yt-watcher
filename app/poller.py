@@ -85,9 +85,7 @@ async def poll_once(app):
                     await _mark_seen_redis(redis, video.video_id)
 
                     if notified:
-                        logger.info(
-                            f"Notification sent for {video.video_id}"
-                        )
+                        logger.info(f"Notification sent for {video.video_id}")
                     else:
                         logger.warning(
                             f"Notification FAILED for {video.video_id} "

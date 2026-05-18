@@ -26,11 +26,11 @@ WORKDIR /app
 # Copy installed packages from builder
 COPY --from=builder /install /usr/local
 
-# Copy application source
-COPY app/ ./app/
+# Copy application source and # Ownership
+COPY --chown=app:app app/ ./app/
 
-# Ownership
-RUN chown -R app:app /app
+
+
 USER 1000
 
 EXPOSE 8000

@@ -1,6 +1,4 @@
 import logging
-from datetime import datetime
-from typing import Optional
 
 import httpx
 
@@ -24,8 +22,6 @@ def _format_message(video: VideoEntry) -> str:
         f"🕒 Published: {pub}\n"
         f"🔗 {video.url}"
     )
-
-
 
 
 async def send_telegram_notification(video: VideoEntry) -> bool:
