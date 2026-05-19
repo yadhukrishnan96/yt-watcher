@@ -12,12 +12,12 @@ resources:
 
   # App
   - app-config.yaml
-  - app-secret.yaml
+  #- app-secret.yaml
   - deployment.yaml
 
   # Postgres
   - postgres-config.yaml
-  - postgres-secret.yaml
+  #- postgres-secret.yaml
   - postgres-pvc.yaml
   - postgres-deployment.yaml
 
