@@ -8,6 +8,14 @@ spec:
   interval: 1m0s
   path: ./yamls
   prune: true
+
+  decryption:
+    provider: sops
+    secretRef:
+      name: sops-age
+
+
+
   sourceRef:
     kind: GitRepository
     name: flux-system

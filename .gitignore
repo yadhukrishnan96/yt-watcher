@@ -24,8 +24,8 @@ env/
 *.env
 
 # Optional secret files
-secrets.yaml
-*-secret.yaml
+# secrets.yaml
+# *-secret.yaml
 
 # =========================
 # Docker
