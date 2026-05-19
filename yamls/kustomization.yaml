@@ -13,7 +13,7 @@ resources:
   # App
   - app-config.yaml
   - app-secret.yaml
-  #- deployment.yaml
+  - deployment.yaml
 
   # Postgres
   - postgres-config.yaml
