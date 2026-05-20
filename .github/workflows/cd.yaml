@@ -17,6 +17,7 @@ on:
 
 jobs:
   deploy:
+    if: github.actor != 'github-actions[bot]'
     runs-on: ubuntu-latest
 
 
@@ -47,3 +48,20 @@ jobs:
             ghcr.io/${{ github.repository_owner }}/yt-watcher:${{ github.sha }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
+      
+
+      - name: Update deployment image
+        run: |
+          sed -i "s|image: .*|image: ghcr.io/${{ github.repository_owner }}/yt-watcher:${{ github.sha }}|" yamls/deployment.yaml
+
+
+      - name: Commit and push manifest changes
+        run: |
+          git config user.name "yadhukrishnan96"
+          git config user.email "yadhuvipenchika@gmail.com"
+
+          git add yamls/deployment.yaml
+
+          git diff --cached --quiet || git commit -m "Update image tag to ${{ github.sha }}"
+
+          git push
