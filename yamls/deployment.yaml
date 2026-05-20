@@ -26,7 +26,7 @@ spec:
           type: RuntimeDefault
       containers:
       - name: yt-watcher 
-        image: docker.io/yadhu96/yt-watcher:v1.0.4
+        image: ghcr.io/yadhukrishnan96/yt-watcher:a1fc528188c240a9dab3b6ff594c1fc902fde5d8
         imagePullPolicy: Always 
         ports:
         - containerPort: 8000
