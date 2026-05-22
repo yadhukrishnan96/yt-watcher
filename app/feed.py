@@ -96,7 +96,7 @@ async def fetch_channel_videos(channel_id: str, client: httpx.AsyncClient) -> Li
             params={
                 "part": "snippet",
                 "playlistId": playlist_id,
-                "maxResults": 2,   # latest 10 — more than enough to catch new uploads
+                "maxResults":1,   # latest 10 — more than enough to catch new uploads
                 "key": settings.youtube_api_key,
             },
             timeout=15.0,
