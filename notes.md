@@ -1,12 +1,6 @@
 # Currently working on
  - [x] need to create /metric in app
-    - asdf
-
-
-
-
-
-
+    - uncommited changes
 
 
 

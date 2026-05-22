@@ -2,6 +2,7 @@ import asyncio
 import logging
 import sys
 from contextlib import asynccontextmanager
+from prometheus_fastapi_instrumentator import Instrumentator
 
 import redis.asyncio as aioredis
 from fastapi import FastAPI, Request, HTTPException
@@ -13,6 +14,8 @@ from .config import settings
 from .models import Base
 from .poller import start_poller
 from .router import router
+
+
 
 logging.basicConfig(
     level=logging.INFO,
@@ -81,6 +84,8 @@ app.include_router(router)
 
 leak = []
 
+
+Instrumentator().instrument(app).expose(app)
 
 @app.get("/oom")
 def trigger_oom():
